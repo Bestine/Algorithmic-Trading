@@ -19,11 +19,23 @@ library(quantmod)
 The libraries are loaded. The data was then imported
 
 ```{r}
-# Load the required datasets
+# Load the required data
+df <- read_csv("stocks-data.csv", show_col_types = FALSE)
 ```
 
 # Explanatory Data Analysis 
 ## Data Assessment
+What are the first five records of the dataset
+
+```{r}
+head(df)
+```
+
+How is the dataset structured?
+
+```{r}
+dim(df)
+```
 
 ## Data Wrangling 
 
