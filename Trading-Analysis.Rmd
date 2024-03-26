@@ -1,0 +1,40 @@
+---
+title: "Trading Analysis"
+output: word_document
+date: "2024-03-26"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+**Load the required data and libraries**
+
+```{r}
+# Load the relevant libraries
+library(tidyverse)
+library(quantmod)
+```
+
+The libraries are loaded. The data was then imported
+
+```{r}
+# Load the required datasets
+```
+
+# Explanatory Data Analysis 
+## Data Assessment
+
+## Data Wrangling 
+
+## Charts and Graphs (Data Visualization)
+
+
+# Machine Learning 
+## Data Preprocessing 
+
+## Model Selection
+### Training the model
+
+### Model Evaluation
+
