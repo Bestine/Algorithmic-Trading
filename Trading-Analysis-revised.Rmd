@@ -1,0 +1,44 @@
+---
+title: "Trading-Analysis-revised"
+output: word_document
+date: "2024-03-28"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Install the RGP package 
+
+```{r}
+install.packages("Packages/rgp_0.4-1.tar.gz", repos = NULL, type = "source")
+
+# run `install.packages('emoa')` the rerun this cell 
+```
+
+**Load the required data and libraries**
+
+```{r}
+# Load the relevant libraries
+#library(tidyverse)
+#library(quantmod)
+library(TTR)
+#library(ggplot2)
+#library(rgp)
+#library(rgenoud)
+#library(mlr)
+```
+
+
+```{r}
+# Load the required data
+df <- read_csv("stocks-data.csv", show_col_types = FALSE)
+```
+
+# Explanatory Data Analysis 
+## Data Assessment
+What are the first five records of the dataset
+
+```{r}
+head(df)
+```

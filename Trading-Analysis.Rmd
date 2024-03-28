@@ -8,12 +8,25 @@ date: "2024-03-26"
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+Install the RGP package 
+
+```{r}
+install.packages("Packages/rgp_0.4-1.tar.gz", repos = NULL, type = "source")
+
+# run `install.packages('emoa')` the rerun this cell 
+```
+
 **Load the required data and libraries**
 
 ```{r}
 # Load the relevant libraries
 library(tidyverse)
 library(quantmod)
+library(TTR)
+library(ggplot2)
+library(rgp)
+library(rgenoud)
+library(mlr)
 ```
 
 The libraries are loaded. The data was then imported
@@ -37,16 +50,84 @@ How is the dataset structured?
 dim(df)
 ```
 
-## Data Wrangling 
+Are there any null values in the dataset? 
 
-## Charts and Graphs (Data Visualization)
+```{r}
+sum(is.na(df))
+```
+
+There are no null values in the dataset 
+
+Lets check some duplicated rows 
+
+```{r}
+sum(duplicated(df))
+```
+
+There are no duplicated row 
 
 
-# Machine Learning 
-## Data Preprocessing 
+# Trading Rules
 
-## Model Selection
-### Training the model
+Create some dummy features that will define the trading rule
 
-### Model Evaluation
+```{r}
+df$SMA_20 <- SMA(df$Close, n=20)
+df$SMA_50 <- SMA(df$Close, n=50)
+df$RSI <- RSI(df$Close)
+```
+
+The trading rule is simple, buying is done when SMA_20 is greater than SMA_50
+
+```{r}
+trading_rule <- expression(SMA_20 > SMA_50)
+trading_rule
+```
+
+Now lets define the fitness function
+
+```{r}
+fitness_fun <- function(y) {
+  # Get the required features from the stock data
+  new_data <- data.frame(SMA_50 = df$SMA_50,
+                         SMA_20 = df$SMA_20,
+                         fitness = ifelse(eval(trading_rule), 1, -1))
+  
+  # Thereafter the fitness is calculated for instance cumulative returns 
+  new_data$returns <- c(0, diff(new_data$Close))
+  fitness <- sum(new_data$returns * new_data$fitness)
+  return(fitness)
+}
+```
+
+
+then define the search space 
+
+```{r}
+#search_space <- list(
+#  SMA_50 = runif(1, min = min(df$SMA_50), max = max(df$SMA_50)),
+#  SMA_20 = runif(1, min = min(df$SMA_20), max = max(df$SMA_20))
+#)
+
+min_value1 = min(df$SMA_20)
+max_value1 = max(df$SMA_20)
+min_value2 = min(df$SMA_50)
+max_value2 = max(df$SMA_50)
+
+search_space <- list(
+  c(min_value1, max_value1),  # Domain for variable 1
+  c(min_value2, max_value2)  # Domain for variable 2
+  # Add more variables as needed
+)
+```
+
+Run the Genetic programming 
+
+```{r}
+#GP <- genoud(fitness_fun, domains = search_space, maxit = 100)
+task <- makeSymbolicRegressionTask(df$Close, df$RSI)
+result <- gp(task, fitness_fun)
+print(result$bestIndividual)
+```
+
 
