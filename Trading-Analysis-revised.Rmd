@@ -20,7 +20,7 @@ install.packages("Packages/rgp_0.4-1.tar.gz", repos = NULL, type = "source")
 
 ```{r}
 # Load the relevant libraries
-#library(tidyverse)
+library(tidyverse)
 #library(quantmod)
 library(TTR)
 #library(ggplot2)
@@ -42,3 +42,72 @@ What are the first five records of the dataset
 ```{r}
 head(df)
 ```
+
+
+How is the dataset structured?
+
+```{r}
+dim(df)
+```
+
+Are there any null values in the dataset? 
+
+```{r}
+sum(is.na(df))
+```
+
+There are no null values in the dataset 
+
+Lets check some duplicated rows 
+
+```{r}
+sum(duplicated(df))
+```
+
+```{r}
+library(dygraphs)
+```
+
+## Data Visualization
+
+```{r}
+
+plot(x=df$Date, y=df$Close)
+```
+
+```{r}
+#dygraph(df$Close, main = "GOOGLE Stock Price") %>%
+#  dyRangeSelector(dateWindow = c("2013-12-18", "2016-12-30"))
+
+# Subset the data frame to include only date and Close price
+close_data <- df[, c("Date", "Close")]
+
+# Plot the chart using dygraph
+dygraph(close_data, main = "Close Price Over Time")
+
+```
+
+
+# Trading Rules 
+Define the trading rule here 
+
+```{r}
+# Calcuate a 20 day and 50 day moving average 
+SMA_20 <- SMA(df$Close, 20)
+SMA_50 <- SMA(df$Close, 50)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
