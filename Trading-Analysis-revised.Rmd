@@ -93,21 +93,131 @@ Define the trading rule here
 
 ```{r}
 # Calcuate a 20 day and 50 day moving average 
-SMA_20 <- SMA(df$Close, 20)
-SMA_50 <- SMA(df$Close, 50)
+df$SMA_20 <- SMA(df$Close, 20)
+df$SMA_50 <- SMA(df$Close, 50)
+```
+
+```{r}
+dygraph(df[,c('SMA_20','SMA_50', "Date")],main = 'GOOG Moving Averages') %>%
+  dySeries('SMA_50', label = 'SMA_50') %>%
+  dySeries('SMA_50', label = 'SMA_50') %>%
+  dyRangeSelector(height = 30) %>%
+  dyShading(from = '2016-4-28', to = '2016-7-27', color = '#CCEBD6') %>%
+  dyShading(from = '2016-7-28', to = '2016-12-30', color = '#FFE6E6')
+```
+
+# PAUSE HERE 
+
+
+```{r}
+# Load the quantmod library
+library(quantmod)
+
+# Assuming you have a data frame df with columns "date", "Close", "SMA_50", and "SMA_20"
+
+# Create a column for the trading signal
+df$signal <- NA
+
+# Generate buy signals when SMA_20 crosses above SMA_50
+df$signal[df$SMA_20 > df$SMA_50 & lag(df$SMA_20) <= lag(df$SMA_50)] <- "buy"
+
+# Generate sell signals when SMA_50 is greater than SMA_20
+df$signal[df$SMA_50 > df$SMA_20 & lag(df$SMA_50) <= lag(df$SMA_20)] <- "sell"
+
+# Plot Close prices with buy and sell signals
+chart_Series(df$Close, name = "Close Price", theme = "white")
+add_SMA(n = 20, col = "blue")
+add_SMA(n = 50, col = "red")
+add_TA(df$signal, type = "p", col = "green", on = 1)
+
 ```
 
 
+```{r}
+# Load necessary libraries
+library(quantmod)
+library(rgp)  # For Genetic Programming
+library(rgenoud)
 
+# Define fitness function for GP
+fitness_function <- function(rule) {
+  # Execute trading rule
+  signals <- eval(rule)
+  
+  # Extract signals
+  signals <- signals[nrow(signals), ]
+  
+  # Calculate returns based on signals
+  returns <- Return.calculate(df$Close, subset = signals)
+  
+  # Fitness function (e.g., maximize Sharpe ratio)
+  return(SharpeRatio.annualized(returns))
+}
 
+# Define search space for GP
+search_space <- expression(
+  ifelse(SMA_20 > SMA_50, 1, 0)
+)
 
+# Set up and run GP
+GP <- genoud(fitness_function, nvars=1, max = TRUE, pop.size = 3000) # domains = list(rule = search_space), maxit = 100)
 
+# Extract best trading rule
+best_rule <- GP$par
 
+# Evaluate best rule
+best_signals <- eval(best_rule)
 
+# Plot signals
+chart_Series(your_stock_symbol, name = "Stock Price")
+add_SMA(n = 20, col = "blue")
+add_SMA(n = 50, col = "red")
+add_TA(best_signals, type = "p", col = "green", on = 1)
+```
 
+```{r}
+# Load necessary libraries
+library(quantmod)
+library(PerformanceAnalytics) # For Sharpe Ratio calculations 
+library(rgp)  # For Genetic Programming
 
+# Example data.frame with Close and Date columns
+rownames(df) <- df$Date #Convert date column to index
 
+# Calculate SMA_20 and SMA_50
+df$SMA_20 <- SMA(df$Close, n = 20)
+df$SMA_50 <- SMA(df$Close, n = 50)
 
+# Define fitness function for GP
+fitness_function <- function(rule) {
+  # Execute trading rule
+  signals <- eval(rule)
+  
+  # Calculate returns based on signals
+  returns <- xts(diff(df$Close * signals))
+  
+  # Fitness function (e.g., maximize Sharpe ratio)
+  return(SharpeRatio.annualized(returns))
+}
 
+# Define search space for GP
+search_space <- expression(
+  ifelse(SMA_20 > SMA_50, 1, 0)
+)
 
+# Set up and run GP
+GP <- genoud(fitness_function, Domains = list(rule = search_space), nvars = 1)
+
+# Extract best trading rule
+best_rule <- GP$par
+
+# Evaluate best rule
+best_signals <- eval(best_rule)
+
+# Plot signals
+chart_Series(df$Close, name = "Stock Price")
+add_SMA(n = 20, col = "blue")
+add_SMA(n = 50, col = "red")
+add_TA(best_signals, type = "p", col = "green", on = 1)
+```
 
