@@ -221,3 +221,5 @@ add_SMA(n = 50, col = "red")
 add_TA(best_signals, type = "p", col = "green", on = 1)
 ```
 
+The project was terminated
+
